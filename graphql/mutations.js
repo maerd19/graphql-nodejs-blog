@@ -1,4 +1,4 @@
-const { GraphQLString, GraphQLID } = require("graphql")
+const { GraphQLString, GraphQLID, graphqlSync } = require("graphql")
 const { User, Post, Comment } = require('../models')
 const { PostType, CommentType } = require('./types')
 const { createJWTToken } = require('../util/auth')
@@ -164,6 +164,27 @@ const updateComment = {
     }
 }
 
+const deleteComment = {
+    type: GraphQLString,
+    description: "Delete a comment",
+    args: {
+        id: { type: GraphQLID }
+    },
+    async resolve(_, { id }, { verifiedUser }) {
+
+        if (!verifiedUser) throw new Error("Unauthorized")
+
+        const commentDeleted = await Comment.findOneAndDelete({
+            _id: id,
+            userId: verifiedUser._id
+        })
+
+        if (!commentDeleted) throw new Error('Comment not found')
+
+        return 'Comment deleted'
+    }
+}
+
 module.exports = {
     register,
     login,
@@ -171,5 +192,6 @@ module.exports = {
     updatePost,
     deletePost,
     addComment,
-    updateComment
+    updateComment,
+    deleteComment
 }
