@@ -96,9 +96,31 @@ const updatePost = {
     }
 }
 
+const deletePost = {
+    type: GraphQLString,
+    description: "Delete a Post",
+    args: {
+        postId: { type: GraphQLID },
+    },
+    async resolve(_, { postId }, { verifiedUser }) {
+        
+        if (!verifiedUser) throw new Error("Unauthorized")
+
+        const postDeleted = await Post.findOneAndDelete({
+            _id: postId,
+            authorId: verifiedUser._id
+        })
+
+        if (!postDeleted) throw new Error("Post not found")
+
+        return "Post deleted"
+    }    
+}
+
 module.exports = {
     register,
     login,
     createPost,
-    updatePost
+    updatePost,
+    deletePost
 }
