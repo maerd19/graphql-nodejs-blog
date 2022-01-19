@@ -1,7 +1,8 @@
 const { GraphQLString } = require("graphql");
 const { User, Post } = require('../models')
 const { PostType } = require('./types')
-const { createJWTToken } = require('../util/auth')
+const { createJWTToken } = require('../util/auth');
+const { posts } = require("./queries");
 
 const register = {
     type: GraphQLString,
@@ -63,7 +64,7 @@ const createPost = {
             authorId: verifiedUser._id
         })
 
-        console.log(newPost)
+        await newPost.save()
 
         return newPost
     }
