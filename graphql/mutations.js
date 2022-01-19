@@ -1,6 +1,6 @@
 const { GraphQLString, GraphQLID } = require("graphql")
-const { User, Post } = require('../models')
-const { PostType } = require('./types')
+const { User, Post, Comment } = require('../models')
+const { PostType, CommentType } = require('./types')
 const { createJWTToken } = require('../util/auth')
 
 const register = {
@@ -56,7 +56,6 @@ const createPost = {
         body: { type: GraphQLString }
     },
     async resolve(_, args, { verifiedUser }) {
-        console.log(verifiedUser);
         const newPost = await new Post({
             title: args.title,
             body: args.body,
@@ -117,10 +116,31 @@ const deletePost = {
     }    
 }
 
+const addComment = {
+    type: CommentType,
+    description: "Add a new comment to a post",
+    args: {
+        comment: { type: GraphQLString },
+        postId: { type: GraphQLID }
+    },
+    async resolve(_, { comment, postId }, { verifiedUser }) {
+        const newComment = await new Comment({
+            comment,
+            postId,
+            userId: verifiedUser._id
+        })
+
+        await newComment.save()
+
+        return newComment
+    }
+}
+
 module.exports = {
     register,
     login,
     createPost,
     updatePost,
-    deletePost
+    deletePost,
+    addComment
 }
