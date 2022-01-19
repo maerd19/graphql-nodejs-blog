@@ -136,11 +136,40 @@ const addComment = {
     }
 }
 
+const updateComment = {
+    type: CommentType,
+    description: "Update a comment",
+    args: {
+        id: { type: GraphQLID },
+        comment: { type: GraphQLString }
+    },
+    async resolve(_, { id, comment }, { verifiedUser }) {
+
+        if (!verifiedUser) throw new Error("Unauthorized")
+
+        const updatedComment = await Comment.findOneAndUpdate(
+            { _id: id, userId: verifiedUser._id },
+            {
+                comment
+            },
+            {
+                new: true,
+                runValidators: true
+            }
+        )
+
+        if (!updateComment) throw new Error("Comment not found")
+
+        return updatedComment
+    }
+}
+
 module.exports = {
     register,
     login,
     createPost,
     updatePost,
     deletePost,
-    addComment
+    addComment,
+    updateComment
 }
