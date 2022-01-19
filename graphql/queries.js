@@ -4,6 +4,7 @@ const { User } = require('../models')
 
 const users = {
     type: new GraphQLList(UserType),
+    description: "Gets all the users",
     resolve() {
         return User.find()
     }
